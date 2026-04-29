@@ -223,7 +223,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
                 const ex = Math.floor(Math.random() * (GRID_SIZE - 4)) + 2;
                 const ey = Math.floor(Math.random() * (GRID_SIZE - 4)) + 2;
                 const distToPlayer = Math.abs(ex - newHead.x) + Math.abs(ey - newHead.y);
-                if (distToPlayer > 8) {
+                if (distToPlayer > 16) {
                    const isOccupied = 
                      newSnake.some(segment => segment.x === ex && segment.y === ey) ||
                      nextEnemies.some(e => e.body.some(pt => pt.x === ex && pt.y === ey));
@@ -246,6 +246,8 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
                 { x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }
               ].filter(dir => !(dir.x === -enemy.direction.x && dir.y === -enemy.direction.y));
 
+              const distToPlayer = Math.abs(eHead.x - newHead.x) + Math.abs(eHead.y - newHead.y);
+
               let bestDirs = possibleDirs.map(dir => {
                 const nextPt = { x: eHead.x + dir.x, y: eHead.y + dir.y };
                 let pScore = 0;
@@ -254,9 +256,13 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
                 } else if (enemy.body.some(pt => pt.x === nextPt.x && pt.y === nextPt.y)) {
                     pScore = -1000;
                 } else {
-                   const dist = Math.abs(nextPt.x - newHead.x) + Math.abs(nextPt.y - newHead.y);
-                   pScore = -dist; 
-                   pScore += (Math.random() * 3 - 1.5);
+                   if (distToPlayer > 16) {
+                      pScore = (dir.x === enemy.direction.x && dir.y === enemy.direction.y) ? 5 : Math.random() * 3;
+                   } else {
+                      const dist = Math.abs(nextPt.x - newHead.x) + Math.abs(nextPt.y - newHead.y);
+                      pScore = -dist; 
+                      pScore += (Math.random() * 3 - 1.5);
+                   }
                 }
                 return { dir, pScore };
               });
@@ -308,21 +314,21 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
   }, [isGameOver, isPaused, hasStarted, food, score, onScoreChange, snake, enemies]);
 
   return (
-    <div className="flex-1 neon-border bg-[#080810] relative grid-pattern overflow-hidden p-[1px] min-h-[400px]">
-      <div className="absolute top-0 left-0 w-full p-2 flex justify-between bg-[#00f3ff]/5 border-b border-[#00f3ff]/20 text-[9px] uppercase z-20">
-        <span className="flex items-center gap-2 text-[#00f3ff]">
-          <span className="w-1.5 h-1.5 bg-[#00f3ff] animate-pulse"></span> Game Active: Grid {GRID_SIZE}x{GRID_SIZE}
+    <div className="flex-1 neon-border bg-[#040008] relative grid-pattern overflow-hidden p-[1px] min-h-[400px]">
+      <div className="absolute top-0 left-0 w-full p-2 flex justify-between bg-[#ff00ff]/10 border-b border-[#ff00ff]/40 text-sm uppercase z-20 font-bold">
+        <span className="flex items-center gap-2 text-[#ff00ff] glitch" data-text={`SEC_ZON: Grid ${GRID_SIZE}x${GRID_SIZE}`}>
+          <span className="w-2 h-2 bg-[#ff00ff] animate-pulse"></span> SEC_ZON: Grid {GRID_SIZE}x{GRID_SIZE}
         </span>
-        <span className="text-[#00f3ff]">Level: Hardcore</span>
+        <span className="text-[#00f3ff] glitch" data-text="THREAT_LVL: CRITICAL">THREAT_LVL: CRITICAL</span>
       </div>
 
       {hasStarted && bossState.active && (
-         <div className="absolute top-12 left-1/2 -translate-x-1/2 text-center z-30 pointer-events-none">
-             <span className="text-xl font-bold uppercase text-red-500 neon-text-pink animate-pulse glitch flex gap-2 items-center" data-text="BOSS ENCOUNTER">
-                BOSS ENCOUNTER
+         <div className="absolute top-16 left-1/2 -translate-x-1/2 text-center z-30 pointer-events-none">
+             <span className="text-3xl font-bold uppercase text-red-500 neon-text-pink animate-pulse glitch flex gap-2 items-center" data-text=">> BOSS INSTANCE_01 <<">
+                &gt;&gt; BOSS INSTANCE_01 &lt;&lt;
              </span>
-             <div className="text-white font-mono mt-1 text-lg">
-                Survive: {Math.max(1, Math.ceil((bossState.ticksLeft * Math.max(70, 150 - Math.floor(score / 50) * 10)) / 1000))}s
+             <div className="text-white font-mono mt-1 text-2xl glitch" data-text={`T-MINUS: ${Math.max(1, Math.ceil((bossState.ticksLeft * Math.max(70, 150 - Math.floor(score / 50) * 10)) / 1000))}s`}>
+                T-MINUS: {Math.max(1, Math.ceil((bossState.ticksLeft * Math.max(70, 150 - Math.floor(score / 50) * 10)) / 1000))}s
              </div>
          </div>
       )}
@@ -342,11 +348,12 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
               className="z-10"
               style={{
                 backgroundColor: currentSkin.color,
-                boxShadow: isHead ? `0 0 10px ${currentSkin.color}` : `0 0 5px ${currentSkin.shadow}`,
-                opacity: isHead ? 1 : 0.8,
+                boxShadow: isHead ? `0 0 15px ${currentSkin.color}, 0 0 5px #fff` : `0 0 5px ${currentSkin.shadow}`,
+                opacity: isHead ? 1 : 0.9,
                 gridColumn: segment.x + 1,
                 gridRow: segment.y + 1,
-                borderRadius: isHead ? '4px' : '2px',
+                borderRadius: isHead ? '0px' : '0px',
+                border: isHead ? '2px solid #fff' : '',
                 margin: '1px'
               }}
             />
@@ -356,18 +363,20 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
         {hasStarted && enemies.map(enemy => (
           enemy.body.map((segment, index) => {
             const isHead = index === 0;
-            const enemyColor = '#ff2a6d';
+            const enemyColor = '#ff00ff';
             return (
               <div
                 key={`enemy-${enemy.id}-${index}`}
                 className="z-10"
                 style={{
                   backgroundColor: enemyColor,
-                  boxShadow: isHead ? `0 0 10px ${enemyColor}` : `0 0 5px rgba(255, 42, 109, 0.5)`,
+                  boxShadow: isHead ? `0 0 15px ${enemyColor}` : `0 0 5px rgba(255, 0, 255, 0.5)`,
                   opacity: isHead ? 1 : 0.8,
                   gridColumn: segment.x + 1,
                   gridRow: segment.y + 1,
-                  borderRadius: isHead ? '4px' : '2px',
+                  borderRadius: '0px',
+                  border: isHead ? `2px solid ${enemyColor}` : '',
+                  borderStyle: isHead ? 'dashed' : 'solid',
                   margin: '1px'
                 }}
               />
@@ -382,22 +391,25 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
                   gridColumn: `${bossState.x} / span 3`,
                   gridRow: `${bossState.y} / span 3`,
                   padding: '2px',
+                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                  border: '2px dotted #f00'
                }}
-               data-text="🕷️"
+               data-text="X_X"
             >
-               <div className="w-full h-full bg-red-600/80 rounded-full flex items-center justify-center animate-pulse border-2 border-red-400">
-                  <span className="text-2xl drop-shadow-[0_0_10px_#f00]">🕷️</span>
+               <div className="w-full h-full bg-[#f00]/90 flex items-center justify-center animate-[glitch-anim-1_0.2s_infinite]">
+                  <span className="text-3xl text-white font-black mix-blend-difference">X_X</span>
                </div>
             </div>
         )}
         
         {hasStarted && (
           <div
-            className="bg-[#ff00ff] shadow-[0_0_10px_#ff00ff] rounded-full animate-pulse"
+            className="bg-[#00f3ff] shadow-[0_0_15px_#00f3ff] animate-pulse"
             style={{
               gridColumn: food.x + 1,
               gridRow: food.y + 1,
-              margin: '2px'
+              margin: '2px',
+              border: '2px solid #fff'
             }}
           />
         )}
@@ -409,37 +421,40 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 flex items-center justify-center bg-[#080810]/80 backdrop-blur-sm z-30"
+            className="absolute inset-0 flex items-center justify-center bg-[#020004]/90 backdrop-blur-sm z-30"
           >
             <div className="text-center hover-glitch">
-              <p className="font-mono text-xl neon-text uppercase mb-4 tracking-wider glitch" data-text="Ready to Play?">
-                Ready to Play?
+              <p className="font-mono text-4xl neon-text uppercase mb-6 tracking-wider glitch font-bold" data-text="ENGAGE_SYSTEM?">
+                ENGAGE_SYSTEM?
               </p>
               
-              <div className="flex justify-center gap-2 mb-6">
+              <div className="flex justify-center gap-4 mb-8">
                  {SKINS.map(skin => (
                    <button 
                      key={skin.id}
                      onClick={() => setSelectedSkinId(skin.id)}
-                     className={`w-6 h-6 rounded-full border-2 transition-all`}
+                     className={`w-10 h-10 border-2 transition-all`}
                      style={{ 
                        backgroundColor: skin.color,
                        borderColor: selectedSkinId === skin.id ? '#fff' : 'transparent',
-                       boxShadow: selectedSkinId === skin.id ? `0 0 10px ${skin.color}` : 'none',
+                       boxShadow: selectedSkinId === skin.id ? `0 0 20px ${skin.color}, inset 0 0 10px rgba(0,0,0,0.5)` : 'none',
+                       transform: selectedSkinId === skin.id ? 'scale(1.1)' : 'scale(1)'
                      }}
                      title={skin.name}
                    />
                  ))}
               </div>
 
-              <p className="font-sans text-sm text-cyan-600 mb-6">
-                Use WASD or Arrow Keys to move.<br/>Avoid red seeker sequences.
+              <p className="text-xl text-[#00f3ff] mb-8 font-bold glitch" data-text="[WASD/ARROWS] = NAVIGATE">
+                [WASD/ARROWS] = NAVIGATE<br/>
+                <span className="text-[#ff00ff]">EVADE CORRUPTED DATA.</span>
               </p>
               <button 
                 onClick={startGame}
-                className="px-6 py-2 border border-[#00f3ff] text-[#00f3ff] font-mono tracking-widest uppercase hover:bg-[#00f3ff] hover:text-black transition-all hover:shadow-[0_0_15px_#00f3ff]"
+                className="px-8 py-4 border-2 border-[#00f3ff] text-[#00f3ff] font-mono tracking-widest text-xl uppercase hover:bg-[#00f3ff] hover:text-[#020004] transition-all shadow-[0_0_20px_rgba(0,243,255,0.4)] hover:shadow-[0_0_40px_rgba(0,243,255,0.8)] glitch"
+                data-text="INITIALIZE"
               >
-                Start Game
+                INITIALIZE
               </button>
             </div>
           </motion.div>
@@ -449,15 +464,16 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute inset-0 flex flex-col items-center justify-center bg-[#080810]/90 backdrop-blur-sm z-30 hover-glitch"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-[#020004]/95 backdrop-blur-sm z-30 hover-glitch border-4 border-red-600"
           >
-            <h2 className="text-4xl font-mono neon-text-pink mb-2 text-[#ff00ff] glitch" data-text="GAME OVER" style={{ textShadow: '0 0 8px #ff00ff' }}>GAME OVER</h2>
-            <p className="font-mono text-cyan-400 text-lg mb-8">Score: {score}</p>
+            <h2 className="text-6xl font-mono neon-text-pink mb-4 text-[#ff00ff] glitch font-black" data-text="TERMINATED" style={{ textShadow: '4px 0 #00f3ff, -4px 0 #ff00ff' }}>TERMINATED</h2>
+            <p className="font-mono text-cyan-400 text-3xl mb-12 glitch" data-text={`CYCLE_SCORE: ${score}`}>CYCLE_SCORE: {score}</p>
             <button 
               onClick={startGame}
-              className="px-6 py-2 border border-[#ff00ff] text-[#ff00ff] font-mono tracking-widest uppercase hover:bg-[#ff00ff] hover:text-black transition-all hover:shadow-[0_0_15px_#ff00ff]"
+              className="px-8 py-4 border-2 border-[#ff00ff] text-[#ff00ff] font-mono tracking-widest text-xl uppercase hover:bg-[#ff00ff] hover:text-[#020004] transition-all shadow-[0_0_20px_rgba(255,0,255,0.4)] hover:shadow-[0_0_40px_rgba(255,0,255,0.8)] glitch"
+              data-text="REBOOT_SYS"
             >
-              Play Again
+              REBOOT_SYS
             </button>
           </motion.div>
         )}
@@ -466,20 +482,20 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onScoreChange }) => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 flex items-center justify-center bg-[#080810]/70 backdrop-blur-sm z-30 hover-glitch"
+            className="absolute inset-0 flex items-center justify-center bg-[#020004]/80 backdrop-blur-sm z-30 hover-glitch"
           >
-            <h2 className="text-3xl font-mono text-[#00f3ff] tracking-[0.5em] ml-[0.5em] uppercase neon-text glitch" data-text="Paused">Paused</h2>
+            <h2 className="text-5xl font-mono text-[#00f3ff] tracking-[0.5em] ml-[0.5em] uppercase neon-text glitch font-black" data-text="SYSTEM HALTED">SYSTEM HALTED</h2>
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className="md:hidden absolute bottom-4 left-1/2 -translate-x-1/2 grid grid-cols-3 gap-2 z-40 opacity-50 hover:opacity-100 transition-opacity">
         <div />
-        <button className="w-12 h-12 border border-[#00f3ff]/30 rounded-full flex items-center justify-center active:bg-[#00f3ff]/20 text-[#00f3ff]" onClick={() => {if (directionRef.current.y !== 1) setDirection({ x: 0, y: -1 })}}>↑</button>
+        <button className="w-16 h-16 border-2 border-[#00f3ff]/50 bg-[#00f3ff]/10 flex items-center justify-center active:bg-[#00f3ff]/40 text-[#00f3ff] text-2xl font-bold" onClick={() => {if (directionRef.current.y !== 1) setDirection({ x: 0, y: -1 })}}>W</button>
         <div />
-        <button className="w-12 h-12 border border-[#00f3ff]/30 rounded-full flex items-center justify-center active:bg-[#00f3ff]/20 text-[#00f3ff]" onClick={() => {if (directionRef.current.x !== 1) setDirection({ x: -1, y: 0 })}}>←</button>
-        <button className="w-12 h-12 border border-[#00f3ff]/30 rounded-full flex items-center justify-center active:bg-[#00f3ff]/20 text-[#00f3ff]" onClick={() => {if (directionRef.current.y !== -1) setDirection({ x: 0, y: 1 })}}>↓</button>
-        <button className="w-12 h-12 border border-[#00f3ff]/30 rounded-full flex items-center justify-center active:bg-[#00f3ff]/20 text-[#00f3ff]" onClick={() => {if (directionRef.current.x !== -1) setDirection({ x: 1, y: 0 })}}>→</button>
+        <button className="w-16 h-16 border-2 border-[#00f3ff]/50 bg-[#00f3ff]/10 flex items-center justify-center active:bg-[#00f3ff]/40 text-[#00f3ff] text-2xl font-bold" onClick={() => {if (directionRef.current.x !== 1) setDirection({ x: -1, y: 0 })}}>A</button>
+        <button className="w-16 h-16 border-2 border-[#00f3ff]/50 bg-[#00f3ff]/10 flex items-center justify-center active:bg-[#00f3ff]/40 text-[#00f3ff] text-2xl font-bold" onClick={() => {if (directionRef.current.y !== -1) setDirection({ x: 0, y: 1 })}}>S</button>
+        <button className="w-16 h-16 border-2 border-[#00f3ff]/50 bg-[#00f3ff]/10 flex items-center justify-center active:bg-[#00f3ff]/40 text-[#00f3ff] text-2xl font-bold" onClick={() => {if (directionRef.current.x !== -1) setDirection({ x: 1, y: 0 })}}>D</button>
       </div>
     </div>
   );

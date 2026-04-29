@@ -56,66 +56,67 @@ export const MusicPlayer: React.FC = () => {
         loop={false}
       />
 
-      <div className="flex-1 neon-border bg-[#080810] p-4 flex flex-col">
-        <h3 className="text-xs font-bold uppercase text-[#ff00ff] mb-4 tracking-tighter border-b border-[#ff00ff]/30 pb-2">
-          Now Playing
+      <div className="flex-1 neon-border bg-[#0a0a0c] p-4 flex flex-col border-[#ff00ff]">
+        <h3 className="text-xl font-bold uppercase text-[#00f3ff] mb-4 tracking-tighter border-b-2 border-[#00f3ff]/50 pb-2 glitch" data-text="AUDIO.CORE://">
+          AUDIO.CORE://
         </h3>
         
         <div className="mb-6 text-center">
           <motion.div 
-            className="w-32 h-32 mx-auto neon-border neon-pink rounded-full flex items-center justify-center p-2 mb-4"
+            className="w-32 h-32 mx-auto neon-border rounded-full flex items-center justify-center p-2 mb-4"
+            style={{ borderColor: '#00f3ff', boxShadow: '0 0 15px rgba(0, 243, 255, 0.4)' }}
             animate={{ rotate: isPlaying ? 360 : 0 }}
             transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
           >
-            <div className="w-full h-full rounded-full border border-[#ff00ff]/20 flex items-center justify-center">
-              <div className="w-4 h-4 bg-[#ff00ff] rounded-full"></div>
+            <div className="w-full h-full rounded-full border-2 border-[#ff00ff]/40 flex items-center justify-center">
+              <div className="w-6 h-6 bg-[#ff00ff] rounded-full shadow-[0_0_15px_#ff00ff]"></div>
             </div>
           </motion.div>
-          <h4 className="text-lg neon-text truncate">{currentTrack.title}</h4>
-          <p className="text-xs text-cyan-600">Artist: {currentTrack.artist}</p>
+          <h4 className="text-2xl neon-text truncate text-[#ff00ff]" style={{ textShadow: '2px 0 #00f3ff, -2px 0 #ff00ff' }}>{currentTrack.title}</h4>
+          <p className="text-lg text-cyan-600">SRC_{currentTrack.artist}</p>
         </div>
 
-        <div className="space-y-2 flex-1 overflow-hidden">
+        <div className="space-y-4 flex-1 overflow-hidden">
           {TRACKS.map((track, i) => (
             <div 
               key={track.id} 
-              className={`p-2 text-xs flex justify-between cursor-pointer ${
+              className={`p-2 text-lg flex justify-between cursor-pointer transition-colors ${
                 i === currentTrackIndex 
-                  ? 'bg-[#00f3ff]/10 border border-[#00f3ff]/40' 
-                  : 'border border-transparent opacity-50 hover:opacity-100'
+                  ? 'bg-[#ff00ff]/20 border-l-4 border-[#ff00ff] text-[#fff] shadow-[0_0_10px_rgba(255,0,255,0.3)]' 
+                  : 'border border-transparent opacity-50 hover:opacity-100 hover:text-[#00f3ff]'
               }`}
               onClick={() => {
                 setCurrentTrackIndex(i);
                 setIsPlaying(true);
               }}
             >
-              <span>0{i + 1}. {track.title}</span>
-              <span className={i === currentTrackIndex ? "text-cyan-600" : ""}>{track.duration}</span>
+              <span>{i + 1}. {track.title}</span>
+              <span className={i === currentTrackIndex ? "text-[#ff00ff]" : ""}>{track.duration}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="h-32 neon-border bg-[#080810] p-4 flex flex-col justify-between">
-        <div className="flex justify-between items-center px-4">
-          <button onClick={handlePrev} className="w-8 h-8 rounded-full border border-[#00f3ff]/30 flex items-center justify-center text-[10px] hover:bg-[#00f3ff]/10 hover:neon-border">
-            PREV
+      <div className="h-32 neon-border bg-[#0a0a0c] p-4 flex flex-col justify-between">
+        <div className="flex justify-between items-center px-4 font-bold">
+          <button onClick={handlePrev} className="w-10 h-10 rounded-sm border-2 border-[#ff00ff]/60 flex items-center justify-center text-sm hover:bg-[#ff00ff]/20 text-[#ff00ff] glitch hover-glitch" data-text="<<">
+            &lt;&lt;
           </button>
-          <button onClick={togglePlay} className="w-12 h-12 rounded-full neon-border bg-[#00f3ff]/20 flex items-center justify-center text-xs hover:bg-[#00f3ff]/40">
-            {isPlaying ? 'PAUSE' : 'PLAY'}
+          <button onClick={togglePlay} className="w-16 h-16 rounded-sm border-2 border-[#00f3ff] bg-[#00f3ff]/10 flex items-center justify-center text-xl text-[#00f3ff] hover:bg-[#00f3ff]/30 shadow-[0_0_15px_rgba(0,243,255,0.4)] glitch hover-glitch" data-text={isPlaying ? 'HALT' : 'EXEC'}>
+            {isPlaying ? 'HALT' : 'EXEC'}
           </button>
-          <button onClick={handleNext} className="w-8 h-8 rounded-full border border-[#00f3ff]/30 flex items-center justify-center text-[10px] hover:bg-[#00f3ff]/10 hover:neon-border">
-            NEXT
+          <button onClick={handleNext} className="w-10 h-10 rounded-sm border-2 border-[#ff00ff]/60 flex items-center justify-center text-sm hover:bg-[#ff00ff]/20 text-[#ff00ff] glitch hover-glitch" data-text=">>">
+            &gt;&gt;
           </button>
         </div>
         
-        <div className="w-full bg-[#00f3ff]/10 h-1 relative mt-4">
+        <div className="w-full bg-[#00f3ff]/20 h-2 relative mt-4">
           <div 
-            className="absolute left-0 top-0 h-full bg-[#00f3ff] shadow-[0_0_5px_#00f3ff]"
+            className="absolute left-0 top-0 h-full bg-[#ff00ff] shadow-[0_0_10px_#ff00ff]"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex justify-between text-[10px] text-cyan-700 mt-2">
+        <div className="flex justify-between text-sm text-cyan-600 mt-2 font-bold">
           <span>{currentTimeStr}</span>
           <span>{currentTrack.duration}</span>
         </div>
